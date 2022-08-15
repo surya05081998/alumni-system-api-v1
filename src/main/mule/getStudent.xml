@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<sub-flow name="getStudentSubFlow" doc:id="97f49fe4-5e3c-47e0-8a99-cf7b28e175c5" >
+		<logger level="INFO" doc:name="Info: getStudent flow start Logger" doc:id="1102d7f5-d44e-49d2-a913-d89f1c2fb982" message=" getStudent flow started"/>
+		<ee:transform doc:name="Transform Message" doc:id="7710dbaf-8701-414a-9dd4-0b36a0b05dc6" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="ID" ><![CDATA[attributes.queryParams.id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:select doc:name="Select" doc:id="4f44840f-c4e5-45a8-913e-fd05bf08ca98" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from alumni where id=:ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	ID: vars.ID
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="08f3dcbe-4c59-4f2b-a9e3-58984a12c2ee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="printing payload" doc:id="998faae5-514a-40c7-b184-62d3b503c078" message="#[payload]"/>
+		<logger level="INFO" doc:name="Info:  getStudent flow end Logger" doc:id="71eea72e-5441-4a06-bf52-64ce7d818388" message=" getStudent flow start ended"/>
+	</sub-flow>
+</mule>

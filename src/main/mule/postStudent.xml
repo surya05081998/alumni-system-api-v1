@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="postStudentSubFlow" doc:id="046a1f1b-4c30-4b7a-bfd1-a79abbb28691" >
+		<logger level="INFO" doc:name="Info: postStudent flow start Logger" doc:id="166daf98-0c19-4cb4-b4d4-059605c8335e" message="postStudent flow started"/>
+		<logger level="INFO" doc:name="Payload before connecting to DB" doc:id="2917337c-03ad-436f-9a26-34e35eb4fab9" message="#[payload]"/>
+		<db:insert doc:name="Insert" doc:id="444c368d-a4c2-4798-83a6-72067f93ec5f" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into alumni (id, name, dept, joningYear) VALUES (SEQ.NEXTVAL, :name,:branch,:enrolementYear)
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	name: payload.name,
+	branch: payload.branch,
+	enrolementYear: payload.enrolementYear
+}]]]></db:input-parameters>
+		</db:insert>
+		<db:select doc:name="Select" doc:id="9e56fbec-cdd0-461f-bfac-9d183fb9e795" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from alumni]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="0a588d16-eb63-4774-8cc9-1c72f08f722e" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="getID" ><![CDATA[%dw 2.0
+output application/json
+---
+payload[-1].id as Number]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="bf0c8eea-f4c8-44ca-9e74-d81a6f8cb238" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status": "Success",
+	"Message": "Student record created successfully with id: " ++ vars.getID as Number
+	
+	}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Info: postStudent flow end Logger" doc:id="25f86dc6-1751-4894-961d-36810e824d5d" message="postStudent flow ended"/>
+	</sub-flow>
+</mule>

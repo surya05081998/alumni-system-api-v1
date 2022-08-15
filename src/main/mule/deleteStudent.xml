@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<sub-flow name="deleteStudentSubFlow" doc:id="9eabdac2-7fae-4746-b893-1588a227efe5" >
+		<logger level="INFO" doc:name="Info: deleteStudent flow start Logger" doc:id="b1b2d758-7794-4853-8869-971483ee0b8b" message="deleteStudent flow started "/>
+		<ee:transform doc:name="setting the variable ID" doc:id="1bd7ab9d-8102-47a4-b383-21b8c34b9215" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="ID" ><![CDATA[attributes.queryParams.id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:delete doc:name="Delete" doc:id="76216255-e1df-4e51-8981-5e1b0b617f23" config-ref="Database_Config">
+			<db:sql ><![CDATA[delete from alumni where id=:ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	ID: vars.ID
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Transform Message" doc:id="aea3148c-745f-45b8-8889-1a163e77eac7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message": "Student record with id " ++ vars.ID ++" deleted successfully"
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Info: deleteStudent flow endLogger" doc:id="0da298c5-2412-4a4c-9361-85db3496d09a" message="deleteStudent flow ended"/>
+	</sub-flow>
+</mule>
